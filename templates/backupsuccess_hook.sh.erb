@@ -1,0 +1,23 @@
+#!/bin/bash
+
+DIR="<%= scope.lookupvar('softec_mylvmbackup::backupdir') -%>"
+
+<% if opts.has_key? "keep" -%>
+<% retention = opts['keep'] -%>
+<% else -%>
+<% retention = "14" -%>
+<% end -%>
+<% if scope.lookupvar('softec_mylvmbackup::send_nsca') == true -%>
+NSCA="/usr/sbin/send_nsca"
+NAGIOS_SERVER="<%= scope.lookupvar('softec_mylvmbackup::nagios_hostname') -%>"
+DATA=`date +%d/%m/%Y-%H:%M:%S`
+CLUSTERNAME="<%= scope.lookupvar('softec_mylvmbackup::clustername') -%>"
+<% end -%>
+
+find $DIR -name "*.lzo" -mtime +<%= retention %> -delete
+<% if scope.lookupvar('softec_mylvmbackup::send_nsca') == true -%>
+if [ $? -eq 0 ]; then
+    echo -e "<%= scope.lookupvar('softec_mylvmbackup::nagios_monitor_host') -%>\tmylvmbackup-$CLUSTERNAME\t0\tOK - backup completato correttamente alle $DATA" | $NSCA -H $NAGIOS_SERVER > /dev/null
+fi
+<% end -%>
+# EOF

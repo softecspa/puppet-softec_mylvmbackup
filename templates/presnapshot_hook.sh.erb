@@ -1,0 +1,6 @@
+#!/bin/bash
+
+OUT="/var/lib/mysql/master.info"
+mysql -e "SHOW MASTER STATUS" --batch > ${OUT}
+
+# EOF

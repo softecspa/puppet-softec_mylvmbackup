@@ -1,0 +1,53 @@
+This module installs and configures mylvmbackup.
+
+to use it, simply call the mylvmbackup class
+
+  class {"mylvmbackup":
+      password => "mypass",
+      vgname => "myvg",
+      lvname => "var",
+      relpath => "lib/mysql",
+      lvsize => "1G"
+  }
+
+  mylvmbackup class accepts the following parameters:
+
+  - user     : mysql user name
+  - password : mysql user password (plaintext)
+  - keep	 : how many days of backup to keep. defaults to 14
+  - notification_email: destination email for failed backups messages
+
+  And the following parameters which are passed 1:1 into the mylvmbackup config file
+  
+  - vgname 	(required)
+  - lvname  (required)
+  - lvsize  (required)
+  - mountdir (defaults to /var/cache/mylvmbackup/mnt/)
+  - backupdir (defaults to /var/cache/mylvmbackup/backup/)
+  - backuplv (optional)
+  - relpath (optional)
+  - fstype (defaults to "ext4")
+  - suffix (defaults to "_mysql")
+
+By default the mylvmbackup class pushes three hooks to handle notifications upon backup failure, save mysql master status prior to backup and removal of old backups upon success.
+
+You can drop additional hooks for mylvmbackup using the 
+mylvmbackup::hook define.
+
+As example, this is one of the predefined hooks:
+
+   mylvmbackup::hook {
+    "backupfailure":
+      opts => {"notification_email" => "backup@softecspa.it"};
+   }
+
+It accepts the following parameters:
+
+- name : the name of the hook must match one of the hooks predefined by
+         mylvmbackup. see [1] for a detailed description
+         [1] http://www.lenzg.net/mylvmbackup/mylvmbackup.1.html#hooks
+
+- tpl : the template of the script to use for this hook.
+- opts : an hash for params. It will be available in the template
+
+
